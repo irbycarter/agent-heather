@@ -25,6 +25,10 @@
   .score-btn:hover { opacity: 0.72; }
   .score-btn.selected { opacity: 1; font-weight: 600; box-shadow: 0 0 0 2px rgba(0,0,0,0.18); }
   .score-btn:active { transform: scale(0.93); }
+  .notes-section { margin-top: 12px; }
+  .notes-label { font-size: 12px; color: #aeaeb2; margin-bottom: 6px; display: block; }
+  .notes-input { width: 100%; border: 0.5px solid #d2d2d7; border-radius: 8px; padding: 8px 10px; font-size: 13px; font-family: inherit; color: #1d1d1f; background: #fafafa; resize: none; outline: none; transition: border-color 0.15s; min-height: 60px; }
+  .notes-input:focus { border-color: #a0a0a5; background: #fff; }
   .dish-total { margin-top: 12px; padding-top: 12px; border-top: 0.5px solid #d2d2d7; display: flex; justify-content: space-between; align-items: center; }
   .dish-total-label { font-size: 12px; color: #aeaeb2; }
   .dish-total-val { font-size: 15px; font-weight: 500; color: #1d1d1f; }
@@ -64,7 +68,7 @@
         <span class="overall-denom" id="overall-denom"></span>
       </div>
     </div>
-    <div class="success-banner" id="success-banner">Feedback submitted! Thanks for rating this week's menu.</div>
+    <div class="success-banner" id="success-banner">Feedback submitted! Heather will love this.</div>
     <button class="submit-btn" id="submit-btn" onclick="handleSubmit()">Submit feedback</button>
   </div>
 </div>
@@ -73,34 +77,17 @@
 const SHEET_ID = '12me4KLiQer_cJhkyCZIdRu7QmMyatfHhMefxNNjWUW4';
 const API_KEY  = 'AIzaSyAmF74sjtDZrsw2ltQW8m2_CkFAX0pPgAY';
 
-// Columns: Date(0) | Dish Name(1) | Ingredients(2) | Alex Score(3) | Nor Score(4) | Elia Score(5) | Kins Score(6) | Notes(7)
 const raters = [
-  {
-    name: 'Alex', col: 3,
-    pill: { bg: '#E6F1FB', text: '#0C447C', border: '#85B7EB' },
-    scale: ['#E6F1FB','#C5DDF7','#9DC4F1','#75ABEA','#4D92E3','#3580CF','#1D6DBB','#0F5AA0','#084785','#042C53']
-  },
-  {
-    name: 'Noreen', col: 4,
-    pill: { bg: '#EAF3DE', text: '#27500A', border: '#97C459' },
-    scale: ['#EAF3DE','#CDE3B0','#AECF7C','#8FBB52','#70A632','#538C1E','#3B6D11','#27500A','#173404','#0D2002']
-  },
-  {
-    name: 'Elia', col: 5,
-    pill: { bg: '#FBEAF0', text: '#72243E', border: '#ED93B1' },
-    scale: ['#FBEAF0','#F4C8D8','#EDA4BE','#E67FA4','#D4537E','#BB3A65','#993556','#72243E','#4B1528','#2E0B18']
-  },
-  {
-    name: 'Kinsley', col: 6,
-    pill: { bg: '#F5EFE6', text: '#5C3D1E', border: '#C8A882' },
-    scale: ['#F5EFE6','#EAD9C4','#DEC3A2','#C8A882','#B08D62','#8C6D43','#6E5030','#5C3D1E','#3E2810','#271808']
-  }
+  { name: 'Alex',    col: 3, pill: { bg: '#E6F1FB', text: '#0C447C', border: '#85B7EB' }, scale: ['#E6F1FB','#C5DDF7','#9DC4F1','#75ABEA','#4D92E3','#3580CF','#1D6DBB','#0F5AA0','#084785','#042C53'] },
+  { name: 'Noreen',  col: 4, pill: { bg: '#EAF3DE', text: '#27500A', border: '#97C459' }, scale: ['#EAF3DE','#CDE3B0','#AECF7C','#8FBB52','#70A632','#538C1E','#3B6D11','#27500A','#173404','#0D2002'] },
+  { name: 'Elia',    col: 5, pill: { bg: '#FBEAF0', text: '#72243E', border: '#ED93B1' }, scale: ['#FBEAF0','#F4C8D8','#EDA4BE','#E67FA4','#D4537E','#BB3A65','#993556','#72243E','#4B1528','#2E0B18'] },
+  { name: 'Kinsley', col: 6, pill: { bg: '#F5EFE6', text: '#5C3D1E', border: '#C8A882' }, scale: ['#F5EFE6','#EAD9C4','#DEC3A2','#C8A882','#B08D62','#8C6D43','#6E5030','#5C3D1E','#3E2810','#271808'] }
 ];
 
-let weeklyData = {};  // { 'YYYY-MM-DD': [ { dish_name, ingredients, scores: {Alex,Noreen,Elia,Kinsley}, rowIdx } ] }
+let weeklyData = {};
 let weekKeys   = [];
 let currentWeekIdx = 0;
-let allRows = [];     // raw sheet rows (excluding header)
+let notes = {}; // { 'YYYY-MM-DD': { 'Dish Name': 'note text' } }
 
 function formatWeekLabel(dateStr) {
   const d = new Date(dateStr + 'T12:00:00');
@@ -116,22 +103,22 @@ function isCurrentWeek(dateStr) {
 
 async function loadData() {
   try {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A:H?key=${API_KEY}`;
+    const url  = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A:H?key=${API_KEY}`;
     const res  = await fetch(url);
     const data = await res.json();
-    const rows = (data.values || []).slice(1); // skip header
-    allRows = rows;
+    const rows = (data.values || []).slice(1);
 
     weeklyData = {};
+    notes = {};
     rows.forEach((row, idx) => {
       const date     = row[0] || '';
       const dishName = row[1] || '';
       if (!date || !dishName) return;
-      if (!weeklyData[date]) weeklyData[date] = [];
+      if (!weeklyData[date]) { weeklyData[date] = []; notes[date] = {}; }
       weeklyData[date].push({
         dish_name:   dishName,
         ingredients: row[2] || '',
-        rowIdx:      idx + 2, // 1-indexed, +1 for header
+        rowIdx:      idx + 2,
         scores: {
           Alex:    row[3] ? parseInt(row[3]) : null,
           Noreen:  row[4] ? parseInt(row[4]) : null,
@@ -139,6 +126,7 @@ async function loadData() {
           Kinsley: row[6] ? parseInt(row[6]) : null
         }
       });
+      notes[date][dishName] = row[7] || '';
     });
 
     weekKeys = Object.keys(weeklyData).sort();
@@ -148,10 +136,10 @@ async function loadData() {
     }
 
     currentWeekIdx = weekKeys.length - 1;
-    document.getElementById('loading').style.display   = 'none';
+    document.getElementById('loading').style.display    = 'none';
     document.getElementById('form-footer').style.display = 'block';
     renderWeek();
-  } catch (e) {
+  } catch(e) {
     document.getElementById('loading').textContent = 'Could not load menu. Please try again later.';
     console.error(e);
   }
@@ -181,10 +169,11 @@ function renderWeek() {
     const card = document.createElement('div');
     card.className = 'dish-card';
 
-    const vals    = Object.values(dish.scores).filter(v => v !== null);
-    const total   = vals.reduce((s, v) => s + v, 0);
+    const vals     = Object.values(dish.scores).filter(v => v !== null);
+    const total    = vals.reduce((s, v) => s + v, 0);
     const totalStr = vals.length > 0 ? `${total} / ${vals.length * 10}` : '—';
     const safeDish = dish.dish_name.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    const noteVal  = (notes[wk] && notes[wk][dish.dish_name]) || '';
 
     card.innerHTML = `
       <div class="dish-name">${dish.dish_name}</div>
@@ -205,6 +194,12 @@ function renderWeek() {
           </div>
         </div>`;
       }).join('')}
+      <div class="notes-section">
+        <span class="notes-label">Notes for Heather</span>
+        <textarea class="notes-input" placeholder="e.g. Could be cooked a bit longer next time..."
+          onchange="setNote('${wk}','${safeDish}',this.value)"
+          onkeyup="setNote('${wk}','${safeDish}',this.value)">${noteVal}</textarea>
+      </div>
       <div class="dish-total">
         <span class="dish-total-label">Dish score</span>
         <span class="dish-total-val">${totalStr}</span>
@@ -222,12 +217,17 @@ function setScore(wk, dishName, raterName, score) {
   renderWeek();
 }
 
+function setNote(wk, dishName, value) {
+  if (!notes[wk]) notes[wk] = {};
+  notes[wk][dishName] = value;
+}
+
 function updateOverall() {
-  const wk   = weekKeys[currentWeekIdx];
-  const all  = weeklyData[wk].flatMap(d => Object.values(d.scores).filter(v => v !== null));
+  const wk  = weekKeys[currentWeekIdx];
+  const all = weeklyData[wk].flatMap(d => Object.values(d.scores).filter(v => v !== null));
   const total = all.reduce((s, v) => s + v, 0);
-  document.getElementById('overall-num').textContent    = all.length > 0 ? total : '—';
-  document.getElementById('overall-denom').textContent  = all.length > 0 ? ` / ${all.length * 10}` : '';
+  document.getElementById('overall-num').textContent   = all.length > 0 ? total : '—';
+  document.getElementById('overall-denom').textContent = all.length > 0 ? ` / ${all.length * 10}` : '';
 }
 
 async function handleSubmit() {
@@ -239,14 +239,14 @@ async function handleSubmit() {
     return;
   }
 
-  // Write each dish score back to its row in the sheet
-  const requests = dishes.map(dish => ({
-    range: `Sheet1!D${dish.rowIdx}:G${dish.rowIdx}`,
+  const data = dishes.map(dish => ({
+    range:  `Sheet1!D${dish.rowIdx}:H${dish.rowIdx}`,
     values: [[
       dish.scores.Alex,
       dish.scores.Noreen,
       dish.scores.Elia,
-      dish.scores.Kinsley
+      dish.scores.Kinsley,
+      (notes[wk] && notes[wk][dish.dish_name]) || ''
     ]]
   }));
 
@@ -255,13 +255,13 @@ async function handleSubmit() {
     await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ valueInputOption: 'RAW', data: requests })
+      body: JSON.stringify({ valueInputOption: 'RAW', data })
     });
     document.getElementById('success-banner').style.display = 'block';
     document.getElementById('submit-btn').style.display     = 'none';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   } catch(e) {
-    alert('Could not save scores. Please try again.');
+    alert('Could not save. Please try again.');
     console.error(e);
   }
 }
