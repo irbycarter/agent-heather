@@ -6,110 +6,51 @@
 <title>Agent Heather — Weekly Feedback</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
-    background: #f5f5f7;
-    color: #1d1d1f;
-    min-height: 100vh;
-  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; background: #f5f5f7; color: #1d1d1f; min-height: 100vh; }
   .wrap { max-width: 620px; margin: 0 auto; padding: 2.5rem 1.25rem 5rem; }
-  .header { margin-bottom: 2rem; }
+  .header { margin-bottom: 1.5rem; }
   .header h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.5px; color: #1d1d1f; }
-  .header p { font-size: 14px; color: #6e6e73; margin-top: 5px; }
-  .dish-card {
-    background: #fff;
-    border: 0.5px solid #d2d2d7;
-    border-radius: 12px;
-    padding: 1.25rem;
-    margin-bottom: 1rem;
-  }
+  .week-nav { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+  .week-nav button { width: 32px; height: 32px; border-radius: 50%; border: 0.5px solid #d2d2d7; background: #fff; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #1d1d1f; transition: background 0.1s; }
+  .week-nav button:hover { background: #ebebeb; }
+  .week-nav button:disabled { opacity: 0.28; cursor: default; }
+  .week-label { font-size: 14px; color: #6e6e73; font-weight: 500; }
+  .week-badge { font-size: 11px; background: #e8f4e8; color: #1a6b2a; border-radius: 6px; padding: 2px 7px; font-weight: 500; margin-left: 6px; }
+  .dish-card { background: #fff; border: 0.5px solid #d2d2d7; border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; }
   .dish-name { font-size: 15px; font-weight: 500; color: #1d1d1f; margin-bottom: 1rem; }
   .rater-section { margin-bottom: 12px; }
-  .rater-pill {
-    display: inline-flex;
-    align-items: center;
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 500;
-    margin-bottom: 8px;
-  }
+  .rater-pill { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; margin-bottom: 8px; }
   .score-btns { display: flex; gap: 3px; flex-wrap: wrap; }
-  .score-btn {
-    width: 32px;
-    height: 28px;
-    border-radius: 6px;
-    border: none;
-    font-size: 11px;
-    font-weight: 400;
-    cursor: pointer;
-    transition: transform 0.08s, opacity 0.08s;
-    opacity: 0.45;
-  }
-  .score-btn:hover { opacity: 0.75; }
-  .score-btn.selected { opacity: 1; font-weight: 600; box-shadow: 0 0 0 2px rgba(0,0,0,0.15); }
+  .score-btn { width: 32px; height: 28px; border-radius: 6px; border: none; font-size: 11px; font-weight: 400; cursor: pointer; transition: transform 0.08s, opacity 0.08s; opacity: 0.4; }
+  .score-btn:hover { opacity: 0.72; }
+  .score-btn.selected { opacity: 1; font-weight: 600; box-shadow: 0 0 0 2px rgba(0,0,0,0.18); }
   .score-btn:active { transform: scale(0.93); }
-  .dish-total {
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 0.5px solid #d2d2d7;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+  .dish-total { margin-top: 12px; padding-top: 12px; border-top: 0.5px solid #d2d2d7; display: flex; justify-content: space-between; align-items: center; }
   .dish-total-label { font-size: 12px; color: #aeaeb2; }
   .dish-total-val { font-size: 15px; font-weight: 500; color: #1d1d1f; }
   .divider { height: 0.5px; background: #d2d2d7; margin: 1.5rem 0; }
-  .overall-card {
-    background: #fff;
-    border: 0.5px solid #d2d2d7;
-    border-radius: 12px;
-    padding: 1.25rem 1.5rem;
-    margin-bottom: 1.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+  .overall-card { background: #fff; border: 0.5px solid #d2d2d7; border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
   .overall-label { font-size: 14px; color: #6e6e73; }
   .overall-sub { font-size: 12px; color: #aeaeb2; margin-top: 2px; }
   .overall-num { font-size: 36px; font-weight: 600; letter-spacing: -1.5px; color: #1d1d1f; }
   .overall-denom { font-size: 16px; font-weight: 400; color: #6e6e73; }
-  .submit-btn {
-    width: 100%;
-    padding: 14px;
-    border-radius: 10px;
-    border: none;
-    background: #1d1d1f;
-    color: #fff;
-    font-size: 15px;
-    font-weight: 500;
-    cursor: pointer;
-    font-family: inherit;
-    transition: opacity 0.15s;
-  }
+  .submit-btn { width: 100%; padding: 14px; border-radius: 10px; border: none; background: #1d1d1f; color: #fff; font-size: 15px; font-weight: 500; cursor: pointer; font-family: inherit; transition: opacity 0.15s; }
   .submit-btn:hover { opacity: 0.82; }
   .loading { text-align: center; padding: 3rem 0; color: #6e6e73; font-size: 15px; }
-  .success-banner {
-    background: #f0faf4;
-    border: 0.5px solid #a8d5b5;
-    border-radius: 12px;
-    padding: 1.25rem;
-    text-align: center;
-    color: #1d6b3e;
-    font-size: 15px;
-    font-weight: 500;
-    display: none;
-    margin-bottom: 1rem;
-  }
+  .success-banner { background: #f0faf4; border: 0.5px solid #a8d5b5; border-radius: 12px; padding: 1.25rem; text-align: center; color: #1d6b3e; font-size: 15px; font-weight: 500; display: none; margin-bottom: 1rem; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="header">
-    <h1>This week's menu</h1>
-    <p id="week-date"></p>
+    <h1>Heather's menu</h1>
+    <div class="week-nav">
+      <button id="btn-prev" onclick="changeWeek(-1)" disabled>&#8592;</button>
+      <span id="week-label" class="week-label">Loading...</span>
+      <button id="btn-next" onclick="changeWeek(1)" disabled>&#8594;</button>
+    </div>
   </div>
-  <div id="loading" class="loading">Loading this week's menu...</div>
+  <div id="loading" class="loading">Loading menus...</div>
   <div id="dishes-container"></div>
   <div id="form-footer" style="display:none">
     <div class="divider"></div>
@@ -124,73 +65,115 @@
       </div>
     </div>
     <div class="success-banner" id="success-banner">Feedback submitted! Thanks for rating this week's menu.</div>
-    <button class="submit-btn" onclick="handleSubmit()">Submit feedback</button>
+    <button class="submit-btn" id="submit-btn" onclick="handleSubmit()">Submit feedback</button>
   </div>
 </div>
 
 <script>
 const SHEET_ID = '12me4KLiQer_cJhkyCZIdRu7QmMyatfHhMefxNNjWUW4';
-const API_KEY = 'AIzaSyAmF74sjtDZrsw2ltQW8m2_CkFAX0pPgAY';
-const SHEET_RANGE = 'Sheet1!A:D';
+const API_KEY  = 'AIzaSyAmF74sjtDZrsw2ltQW8m2_CkFAX0pPgAY';
 
+// Columns: Date(0) | Dish Name(1) | Ingredients(2) | Alex Score(3) | Nor Score(4) | Elia Score(5) | Kins Score(6) | Notes(7)
 const raters = [
   {
-    name: 'Alex',
+    name: 'Alex', col: 3,
     pill: { bg: '#E6F1FB', text: '#0C447C', border: '#85B7EB' },
     scale: ['#E6F1FB','#C5DDF7','#9DC4F1','#75ABEA','#4D92E3','#3580CF','#1D6DBB','#0F5AA0','#084785','#042C53']
   },
   {
-    name: 'Noreen',
+    name: 'Noreen', col: 4,
     pill: { bg: '#EAF3DE', text: '#27500A', border: '#97C459' },
     scale: ['#EAF3DE','#CDE3B0','#AECF7C','#8FBB52','#70A632','#538C1E','#3B6D11','#27500A','#173404','#0D2002']
   },
   {
-    name: 'Elia',
+    name: 'Elia', col: 5,
     pill: { bg: '#FBEAF0', text: '#72243E', border: '#ED93B1' },
     scale: ['#FBEAF0','#F4C8D8','#EDA4BE','#E67FA4','#D4537E','#BB3A65','#993556','#72243E','#4B1528','#2E0B18']
+  },
+  {
+    name: 'Kinsley', col: 6,
+    pill: { bg: '#F5EFE6', text: '#5C3D1E', border: '#C8A882' },
+    scale: ['#F5EFE6','#EAD9C4','#DEC3A2','#C8A882','#B08D62','#8C6D43','#6E5030','#5C3D1E','#3E2810','#271808']
   }
 ];
 
-let dishes = [];
-const scores = {};
+let weeklyData = {};  // { 'YYYY-MM-DD': [ { dish_name, ingredients, scores: {Alex,Noreen,Elia,Kinsley}, rowIdx } ] }
+let weekKeys   = [];
+let currentWeekIdx = 0;
+let allRows = [];     // raw sheet rows (excluding header)
 
-function getNextMonday() {
-  const d = new Date();
-  const day = d.getDay();
-  const diff = (8 - day) % 7 || 7;
-  d.setDate(d.getDate() + diff);
-  return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+function formatWeekLabel(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  return 'Week of ' + d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 }
 
-document.getElementById('week-date').textContent = getNextMonday();
+function isCurrentWeek(dateStr) {
+  const today = new Date();
+  const d = new Date(dateStr + 'T12:00:00');
+  const diff = Math.round((d - today) / (1000 * 60 * 60 * 24));
+  return diff >= -6 && diff <= 7;
+}
 
-async function loadDishes() {
+async function loadData() {
   try {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_RANGE}?key=${API_KEY}`;
-    const res = await fetch(url);
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A:H?key=${API_KEY}`;
+    const res  = await fetch(url);
     const data = await res.json();
-    const rows = data.values || [];
+    const rows = (data.values || []).slice(1); // skip header
+    allRows = rows;
 
-    const seen = new Set();
-    dishes = [];
-    rows.forEach(row => {
-      const name = row[1];
-      if (name && name !== 'Dish Name' && !seen.has(name)) {
-        seen.add(name);
-        dishes.push(name);
-        scores[name] = { Alex: null, Noreen: null, Elia: null };
-      }
+    weeklyData = {};
+    rows.forEach((row, idx) => {
+      const date     = row[0] || '';
+      const dishName = row[1] || '';
+      if (!date || !dishName) return;
+      if (!weeklyData[date]) weeklyData[date] = [];
+      weeklyData[date].push({
+        dish_name:   dishName,
+        ingredients: row[2] || '',
+        rowIdx:      idx + 2, // 1-indexed, +1 for header
+        scores: {
+          Alex:    row[3] ? parseInt(row[3]) : null,
+          Noreen:  row[4] ? parseInt(row[4]) : null,
+          Elia:    row[5] ? parseInt(row[5]) : null,
+          Kinsley: row[6] ? parseInt(row[6]) : null
+        }
+      });
     });
 
-    document.getElementById('loading').style.display = 'none';
+    weekKeys = Object.keys(weeklyData).sort();
+    if (weekKeys.length === 0) {
+      document.getElementById('loading').textContent = 'No menus found yet.';
+      return;
+    }
+
+    currentWeekIdx = weekKeys.length - 1;
+    document.getElementById('loading').style.display   = 'none';
     document.getElementById('form-footer').style.display = 'block';
-    render();
+    renderWeek();
   } catch (e) {
     document.getElementById('loading').textContent = 'Could not load menu. Please try again later.';
+    console.error(e);
   }
 }
 
-function render() {
+function changeWeek(dir) {
+  currentWeekIdx = Math.max(0, Math.min(weekKeys.length - 1, currentWeekIdx + dir));
+  document.getElementById('success-banner').style.display = 'none';
+  document.getElementById('submit-btn').style.display     = 'block';
+  renderWeek();
+}
+
+function renderWeek() {
+  const wk     = weekKeys[currentWeekIdx];
+  const dishes = weeklyData[wk];
+  const isCurrent = isCurrentWeek(wk);
+
+  document.getElementById('week-label').innerHTML =
+    formatWeekLabel(wk) + (isCurrent ? ' <span class="week-badge">This week</span>' : '');
+  document.getElementById('btn-prev').disabled = currentWeekIdx === 0;
+  document.getElementById('btn-next').disabled = currentWeekIdx === weekKeys.length - 1;
+
   const container = document.getElementById('dishes-container');
   container.innerHTML = '';
 
@@ -198,27 +181,30 @@ function render() {
     const card = document.createElement('div');
     card.className = 'dish-card';
 
-    const vals = Object.values(scores[dish]).filter(v => v !== null);
-    const total = vals.reduce((s, v) => s + v, 0);
+    const vals    = Object.values(dish.scores).filter(v => v !== null);
+    const total   = vals.reduce((s, v) => s + v, 0);
     const totalStr = vals.length > 0 ? `${total} / ${vals.length * 10}` : '—';
+    const safeDish = dish.dish_name.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 
     card.innerHTML = `
-      <div class="dish-name">${dish}</div>
-      ${raters.map(r => `
+      <div class="dish-name">${dish.dish_name}</div>
+      ${raters.map(r => {
+        const sel = dish.scores[r.name];
+        return `
         <div class="rater-section">
-          <div class="rater-pill" style="background:${r.pill.bg}; color:${r.pill.text}; border: 0.5px solid ${r.pill.border}">${r.name}</div>
+          <div class="rater-pill" style="background:${r.pill.bg};color:${r.pill.text};border:0.5px solid ${r.pill.border}">${r.name}</div>
           <div class="score-btns">
             ${r.scale.map((bg, i) => {
               const n = i + 1;
-              const sel = scores[dish][r.name] === n;
-              const textColor = n <= 5 ? r.pill.text : '#fff';
-              return `<button class="score-btn ${sel ? 'selected' : ''}"
-                style="background:${bg}; color:${textColor};"
-                onclick="setScore('${dish.replace(/'/g,"\\'")}','${r.name}',${n})">${n}</button>`;
+              const isSelected = sel === n;
+              const textColor  = n <= 5 ? r.pill.text : '#fff';
+              return `<button class="score-btn ${isSelected ? 'selected' : ''}"
+                style="background:${bg};color:${textColor};"
+                onclick="setScore('${wk}','${safeDish}','${r.name}',${n})">${n}</button>`;
             }).join('')}
           </div>
-        </div>
-      `).join('')}
+        </div>`;
+      }).join('')}
       <div class="dish-total">
         <span class="dish-total-label">Dish score</span>
         <span class="dish-total-val">${totalStr}</span>
@@ -230,30 +216,57 @@ function render() {
   updateOverall();
 }
 
-function setScore(dish, rater, score) {
-  scores[dish][rater] = score;
-  render();
+function setScore(wk, dishName, raterName, score) {
+  const dish = weeklyData[wk].find(d => d.dish_name === dishName);
+  if (dish) dish.scores[raterName] = score;
+  renderWeek();
 }
 
 function updateOverall() {
-  const all = dishes.flatMap(d => Object.values(scores[d]).filter(v => v !== null));
+  const wk   = weekKeys[currentWeekIdx];
+  const all  = weeklyData[wk].flatMap(d => Object.values(d.scores).filter(v => v !== null));
   const total = all.reduce((s, v) => s + v, 0);
-  document.getElementById('overall-num').textContent = all.length > 0 ? total : '—';
-  document.getElementById('overall-denom').textContent = all.length > 0 ? ` / ${all.length * 10}` : '';
+  document.getElementById('overall-num').textContent    = all.length > 0 ? total : '—';
+  document.getElementById('overall-denom').textContent  = all.length > 0 ? ` / ${all.length * 10}` : '';
 }
 
-function handleSubmit() {
-  const incomplete = dishes.some(d => Object.values(scores[d]).some(v => v === null));
+async function handleSubmit() {
+  const wk     = weekKeys[currentWeekIdx];
+  const dishes = weeklyData[wk];
+  const incomplete = dishes.some(d => Object.values(d.scores).some(v => v === null));
   if (incomplete) {
-    alert('Please rate all dishes for Alex, Noreen, and Elia before submitting.');
+    alert('Please rate all dishes for Alex, Noreen, Elia, and Kinsley before submitting.');
     return;
   }
-  document.getElementById('success-banner').style.display = 'block';
-  document.querySelector('.submit-btn').style.display = 'none';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Write each dish score back to its row in the sheet
+  const requests = dishes.map(dish => ({
+    range: `Sheet1!D${dish.rowIdx}:G${dish.rowIdx}`,
+    values: [[
+      dish.scores.Alex,
+      dish.scores.Noreen,
+      dish.scores.Elia,
+      dish.scores.Kinsley
+    ]]
+  }));
+
+  try {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values:batchUpdate?key=${API_KEY}`;
+    await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ valueInputOption: 'RAW', data: requests })
+    });
+    document.getElementById('success-banner').style.display = 'block';
+    document.getElementById('submit-btn').style.display     = 'none';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch(e) {
+    alert('Could not save scores. Please try again.');
+    console.error(e);
+  }
 }
 
-loadDishes();
+loadData();
 </script>
 </body>
 </html>
