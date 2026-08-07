@@ -77,6 +77,7 @@
 const SHEET_ID = '12me4KLiQer_cJhkyCZIdRu7QmMyatfHhMefxNNjWUW4';
 const API_KEY  = 'AIzaSyAmF74sjtDZrsw2ltQW8m2_CkFAX0pPgAY';
 
+// Columns: Date(A) | Dish(B) | Ingredients(C) | Alex(D) | Nor(E) | Elia(F) | Kins(G) | Total(H) | Notes(I)
 const raters = [
   { name: 'Alex',    col: 3, pill: { bg: '#E6F1FB', text: '#0C447C', border: '#85B7EB' }, scale: ['#E6F1FB','#C5DDF7','#9DC4F1','#75ABEA','#4D92E3','#3580CF','#1D6DBB','#0F5AA0','#084785','#042C53'] },
   { name: 'Noreen',  col: 4, pill: { bg: '#EAF3DE', text: '#27500A', border: '#97C459' }, scale: ['#EAF3DE','#CDE3B0','#AECF7C','#8FBB52','#70A632','#538C1E','#3B6D11','#27500A','#173404','#0D2002'] },
@@ -87,7 +88,7 @@ const raters = [
 let weeklyData = {};
 let weekKeys   = [];
 let currentWeekIdx = 0;
-let notes = {}; // { 'YYYY-MM-DD': { 'Dish Name': 'note text' } }
+let notes = {};
 
 function formatWeekLabel(dateStr) {
   const d = new Date(dateStr + 'T12:00:00');
@@ -103,13 +104,14 @@ function isCurrentWeek(dateStr) {
 
 async function loadData() {
   try {
-    const url  = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A:H?key=${API_KEY}`;
+    const url  = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/Sheet1!A:I?key=${API_KEY}`;
     const res  = await fetch(url);
     const data = await res.json();
     const rows = (data.values || []).slice(1);
 
     weeklyData = {};
     notes = {};
+
     rows.forEach((row, idx) => {
       const date     = row[0] || '';
       const dishName = row[1] || '';
@@ -126,7 +128,8 @@ async function loadData() {
           Kinsley: row[6] ? parseInt(row[6]) : null
         }
       });
-      notes[date][dishName] = row[7] || '';
+      // Notes are now column I (index 8), skip Total (index 7)
+      notes[date][dishName] = row[8] || '';
     });
 
     weekKeys = Object.keys(weeklyData).sort();
@@ -239,13 +242,15 @@ async function handleSubmit() {
     return;
   }
 
+  // Write scores (D-G), skip Total (H, handled by sheet formula), write Notes (I)
   const data = dishes.map(dish => ({
-    range:  `Sheet1!D${dish.rowIdx}:H${dish.rowIdx}`,
+    range:  `Sheet1!D${dish.rowIdx}:I${dish.rowIdx}`,
     values: [[
       dish.scores.Alex,
       dish.scores.Noreen,
       dish.scores.Elia,
       dish.scores.Kinsley,
+      '',   // Total column — leave blank, sheet formula handles it
       (notes[wk] && notes[wk][dish.dish_name]) || ''
     ]]
   }));
